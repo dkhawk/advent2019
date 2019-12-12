@@ -3,7 +3,7 @@ import java.io.File
 fun readFileAsLinesUsingReadLines(fileName: String): List<String> = File(fileName).readLines()
 
 fun main() {
-    Day11.test()
+    Day12.test()
 }
 
 class Utils {
