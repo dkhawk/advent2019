@@ -1,13 +1,52 @@
+import io.reactivex.Observable
+import io.reactivex.Observer
+import io.reactivex.disposables.Disposable
+import io.reactivex.observers.DisposableObserver
 import java.io.File
+import java.util.concurrent.TimeUnit
 
 fun readFileAsLinesUsingReadLines(fileName: String): List<String> = File(fileName).readLines()
 
 fun main() {
-    Day12.test()
+//    Day12.test()
+//    rxJavaTesting()
+    Day13.test()
+}
+
+private fun rxJavaTesting() {
+    val source = Observable.just(10, 9, 8, 7, 6, 5, 4, 3, 2, 1).delay(2, TimeUnit.SECONDS)
+
+    var disposable = source.subscribeWith(object : DisposableObserver<Int>() {
+        override fun onComplete() {
+            println("complete")
+        }
+
+        override fun onNext(p0: Int) {
+            println("next: $p0")
+        }
+
+        override fun onError(p0: Throwable) {
+            println("error")
+        }
+    })
+
+    Thread.sleep(3000)
+
+    if (!disposable.isDisposed) {
+        disposable.dispose()
+    }
 }
 
 class Utils {
     companion object {
+        fun sign(value: Int) : Int {
+            return when {
+                value > 0 -> 1
+                value < 0 -> -1
+                else -> 0
+            }
+        }
+
         const val NO_COLOR = "\u001B[0m"
     }
 
@@ -36,4 +75,3 @@ class Utils {
         }
     }
 }
-

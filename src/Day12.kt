@@ -1,17 +1,10 @@
+import Utils.Companion.sign
 import kotlin.math.abs
 
 class Day12 {
     companion object {
         fun test() {
             Day12().part2()
-        }
-
-        fun sign(value: Int) : Int {
-            return when {
-                value > 0 -> 1
-                value < 0 -> -1
-                else -> 0
-            }
         }
     }
 
