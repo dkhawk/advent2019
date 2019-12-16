@@ -10,7 +10,10 @@ fun readFileAsLinesUsingReadLines(fileName: String): List<String> = File(fileNam
 fun main() {
 //    Day12.test()
 //    rxJavaTesting()
-    Day13.test()
+//    Day13.test()
+    Day14.test()
+//    Day15.test()
+//    Day16.test()
 }
 
 private fun rxJavaTesting() {
