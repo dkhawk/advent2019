@@ -85,8 +85,8 @@ Consume 2 AB, 3 BC, 4 CA to produce 1 FUEL.
 //            Day14().part1(testInput3)
 //            Day14().part1(testInput5)
 //            Day14().part2(testInput3)
-            Day14().part2(testInput5)
-//            Day14().part2(part1Input)
+//            Day14().part2(testInput5)
+            Day14().part2(part1Input)
         }
     }
 
@@ -96,6 +96,8 @@ Consume 2 AB, 3 BC, 4 CA to produce 1 FUEL.
 
     interface Source {
         fun get(quantity: Long, sources: HashMap<String, Source>)
+
+        fun reset()
     }
 
     class Mine : Source {
@@ -103,15 +105,16 @@ Consume 2 AB, 3 BC, 4 CA to produce 1 FUEL.
         override fun get(quantity: Long, sources: HashMap<String, Source>) {
             totalExtracted += quantity
         }
+
+        override fun reset() {
+            totalExtracted = 0
+        }
     }
 
     class Factory(val symbol: String, val reaction: Reaction) : Source {
         var produced = 0L
         var stockpile = 0L
-        var period = -1
         override fun get(quantity: Long, sources: HashMap<String, Source>) {
-            // Probably don't do this as a loop...
-
             val howMuchDoWeNeedToMake = quantity - stockpile
 
             if (howMuchDoWeNeedToMake > 0) {
@@ -122,15 +125,13 @@ Consume 2 AB, 3 BC, 4 CA to produce 1 FUEL.
                 stockpile += numReactions * reaction.yield
                 produced += numReactions * reaction.yield
             }
-//            while (stockpile < quantity) {
-//                reaction.ingredients.forEach { ingredient ->
-//                    sources[ingredient.symbol]!!.get(ingredient.quantity, sources)
-//                }
-//                stockpile += reaction.yield
-//                produced += reaction.yield
-//            }
 
             stockpile -= quantity
+        }
+
+        override fun reset() {
+            produced = 0
+            stockpile = 0
         }
     }
 
@@ -142,7 +143,6 @@ Consume 2 AB, 3 BC, 4 CA to produce 1 FUEL.
         val mine = createSources(input)
 
         val goal = "FUEL"
-//        println("Goal: ${reactionMap[goal]}")
 
         val quantity = 1L
         craft(goal, quantity)
@@ -154,101 +154,37 @@ Consume 2 AB, 3 BC, 4 CA to produce 1 FUEL.
         val mine = createSources(input)
 
         val goal = "FUEL"
-//        println("Goal: ${reactionMap[goal]}")
-//        1_000_000_000_000
 
-        craft(goal, 1000000)
+        craft(goal, 1_000_000)
         val oreFor1M = mine.totalExtracted
-
+        val orePerFuel = oreFor1M.toDouble() / 1_000_000
         println(oreFor1M)
+        println(orePerFuel)
 
-        return
+        val targetOre = 1_000_000_000_000
 
-        var lastTotal = 0L
-        var fuelProducedPerPeriod = 0
+        var guess = (targetOre / orePerFuel).toLong()
+        println("Guess is $guess")
 
-        for (iteration in 1..40_000_000) {
-            val quantity = 1L
-            craft(goal, quantity)
-            val diff = mine.totalExtracted - lastTotal
-//            println("$it: Total ore needed: ${mine.totalExtracted} ($diff)")
-            lastTotal = mine.totalExtracted
+        sources.values.forEach(Source::reset)
+        craft(goal, guess)
+        println("Used ${mine.totalExtracted} ore for ${guess} fuel")
 
-            if (iteration % 1_000_000 == 0) {
-                println("$iteration  =>  ore:\n${mine.totalExtracted}")
+        if (mine.totalExtracted > targetOre) {
+            while (mine.totalExtracted  > targetOre) {
+                sources.values.forEach(Source::reset)
+                guess -= 1
+                craft(goal, guess)
+                println("Used ${mine.totalExtracted} ore for ${guess} fuel")
             }
-
-//            val factories = sources.values.filterIsInstance<Factory>()
-//
-//            factories.filter { factory -> factory.stockpile == 0 && factory.period == -1 }.forEach { factory ->
-//                factory.period = iteration
-//            }
-
-//            var fuelFactory = sources["FUEL"] as Factory
-//
-//            val topLevelFactories = fuelFactory.reaction.ingredients.map {
-//                sources[it.symbol] as Factory
-//            }
-
-//            if (factories.firstOrNull { factory -> factory.period != -1 } == null) {
-//                println("All periods known")
-//                break
-//            }
-
-//            if ((iteration % period) == 0) {
-//            println("piles (${iteration}): \n${factories.map(Factory::stockpile).joinToString("\n")}")
-//            println("prod (${iteration}): \n${factories.map(Factory::produced).joinToString("\n")}")
-//            }
-
-//            println("p: ${factories.map(Factory::period).joinToString(",")}")
-
-//            if (factories.firstOrNull { factory -> factory.period == -1 } == null) {
-//                println("All periods known")
-//                break
-//            }
-
-//            if (factories.firstOrNull { factory -> factory.stockpile > 0 } == null) {
-//                println("repeated at: $iteration")
-//                println("$iteration: Total ore needed: ${mine.totalExtracted}")
-//                fuelProducedPerPeriod = iteration + 1
-//                break
-//            }
+        } else if (mine.totalExtracted < targetOre) {
+            while (mine.totalExtracted  < targetOre) {
+                sources.values.forEach(Source::reset)
+                guess += 1
+                craft(goal, guess)
+                println("Used ${mine.totalExtracted} ore for ${guess} fuel")
+            }
         }
-
-        val factories = sources.values.filterIsInstance<Factory>()
-
-        println("piles:\n${factories.map(Factory::stockpile).joinToString("\n")}")
-        println("prod:\n${factories.map(Factory::produced).joinToString("\n")}")
-        println("ore:\n${mine.totalExtracted}")
-
-        return
-
-
-//        println("Fuel per period $fuelProducedPerPeriod")
-//
-//        val factories = sources.values.filterIsInstance<Factory>()
-//        factories.forEach { factory ->
-//            println("factory: ${factory.symbol} has period ${factory.period}")
-//        }
-//
-//        println(factories.map(Factory::period).joinToString("\n"))
-//
-//        val periodOre = mine.totalExtracted
-//        val oreCap = 1_000_000_000_000
-//        val periods = oreCap / periodOre
-//        val iterationsToDo = oreCap % periodOre
-//        var totalFuel = fuelProducedPerPeriod * periods
-//
-//        mine.totalExtracted = periodOre * periods
-//        while (mine.totalExtracted < oreCap) {
-//            lastTotal = mine.totalExtracted
-//            craft(goal, 1)
-//            if (mine.totalExtracted < oreCap) {
-//                totalFuel += 1
-//            }
-//        }
-//
-//        println("Total fuel: $totalFuel")
     }
 
     private fun createSources(input: List<String>): Mine {

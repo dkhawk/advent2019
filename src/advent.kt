@@ -8,12 +8,15 @@ import java.util.concurrent.TimeUnit
 fun readFileAsLinesUsingReadLines(fileName: String): List<String> = File(fileName).readLines()
 
 fun main() {
+    val startTime = System.currentTimeMillis()
 //    Day12.test()
 //    rxJavaTesting()
 //    Day13.test()
     Day14.test()
 //    Day15.test()
 //    Day16.test()
+    val endTime = System.currentTimeMillis()
+    println(endTime - startTime)
 }
 
 private fun rxJavaTesting() {
